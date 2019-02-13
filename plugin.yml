@@ -11,7 +11,7 @@ commands:
         aliases: [ dwl ]
     dwarp:
         description: Warp to a Dynmap marker.
-        usage: /<command> [marker]
+        usage: /<command> [marker/label]
         aliases: [ dw ]
 permissions: 
     dynwarp.tp:

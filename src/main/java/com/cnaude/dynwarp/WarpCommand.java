@@ -36,18 +36,26 @@ public class WarpCommand implements CommandExecutor {
         if (args.length == 0) {
             return false;
         }
-        String markerID = args[0];
+        String markerID = String.join(" ", args);;
         if (sender instanceof Player) {
             if (sender.hasPermission("dynwarp.tp") || sender.hasPermission("dynwarp.tp." + markerID)) {
                 Marker dm = null;
                 for (MarkerSet ms : markerAPI.getMarkerSets()) {
-                    // first loop to get exact match
+                    // first loop to get exact match of id
                     for (Marker m : ms.getMarkers()) {
                         if (m.getMarkerID().equalsIgnoreCase(markerID)) {
                             dm = m;
                         }
                     }
-                    // second loop for partial match
+                    // second loop to get exact match of label
+                    if (dm == null) {
+                        for (Marker m : ms.getMarkers()) {
+                            if (m.getLabel().toLowerCase().equalsIgnoreCase(markerID)) {
+                                dm = m;
+                            }
+                        }
+                    }
+                    // third loop for partial match of id
                     if (dm == null) {
                         for (Marker m : ms.getMarkers()) {
                             if (m.getMarkerID().toLowerCase().contains(markerID.toLowerCase())) {
@@ -55,6 +63,14 @@ public class WarpCommand implements CommandExecutor {
                             }
                         }
                     }
+	                // fourth loop for partial match of label
+	                if (dm == null) {
+	                	for (Marker m : ms.getMarkers()) {
+	                        if (m.getLabel().toLowerCase().contains(markerID.toLowerCase())) {
+	                            dm = m;
+	                        }
+	                    }
+	                }
                 }
                 if (dm != null) {
                     sender.sendMessage(ChatColor.GOLD + "Warping to " + ChatColor.AQUA + dm.getMarkerID() + ": " + ChatColor.WHITE + dm.getLabel());
@@ -62,7 +78,7 @@ public class WarpCommand implements CommandExecutor {
                     ((Player) sender).teleport(loc);
                     return true;
                 } else {
-                    sender.sendMessage(ChatColor.GOLD + "No matching marker ID found.");
+                    sender.sendMessage(ChatColor.GOLD + "No matching marker ID or label found.");
                 }
             } else {
                 sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
